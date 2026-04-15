@@ -3,9 +3,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from database.models import Curator
+from database.models import Curator, Person
 from database.database import SessionLocal, init_db
-from utils import login_required, verify_password
+from utils import login_required, verify_password, admin_required
 from config.config import SECRET_KEY
 
 app = Flask(__name__)
@@ -53,38 +53,47 @@ def login():
     return render_template("login.html")
 
 @app.route('/social_passport')
+@login_required
 def social_passport():
     return render_template("social_passport.html", title="Социальный паспорт группы")
 
 @app.route('/activists')
+@login_required
 def activists():
     return render_template("activists.html", title="Активисты группы")
 
 @app.route('/dormitory')
+@login_required
 def dormitory():
     return render_template("dormitory.html", title="Студенты в общежитии")
 
 @app.route('/meetings')
+@login_required
 def meetings():
     return render_template("meetings.html", title="Родительские собрания")
 
 @app.route('/individual_work')
+@login_required
 def individual_work():
     return render_template("individual_work.html", title="Индивидуальная работа")
 
 @app.route('/extracurricular')
+@login_required
 def extracurricular():
     return render_template("extracurricular.html", title="Внеучебная занятость")
 
 @app.route('/class_hours')
+@login_required
 def class_hours():
     return render_template("class_hours.html", title="Классные часы")
 
 @app.route('/observation_sheet')
+@login_required
 def observation_sheet():
     return render_template("observation_sheet.html", title="Лист наблюдеиния")
 
 @app.route('/report')
+@login_required
 def report():
     return render_template("report.html", title="Отчёты")
 
@@ -95,6 +104,11 @@ def logout():
     flash("Вы успешно вышли из системы", "success")
     return redirect(url_for('login'))
 
+@app.route('/adminpanel')
+@login_required
+@admin_required
+def adminpanel():
+    return render_template("admin_panel.html", title="Админитрирование")
+
 if __name__ == "__main__":
-    init_db()
     app.run(host="192.168.1.17", debug=True)

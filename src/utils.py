@@ -15,7 +15,19 @@ def login_required(f):
     def decorated_function(*args, **kwargs):
         if "person_id" not in session:
             flash("Для доступа к странице необходимо авторизоваться", "warning")
-            # Сохраняем URL, чтобы вернуть пользователя после входа
+            
             return redirect(url_for("login", next=request.url))
         return f(*args, **kwargs)
     return decorated_function
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("person_role") != 1:
+            flash("Для доступа к странице необходимо быть администратором", "warning")
+            
+            return redirect(url_for("index", next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+

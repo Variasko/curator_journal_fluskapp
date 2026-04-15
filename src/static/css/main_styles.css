@@ -44,7 +44,7 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg);
 }
 .main-area {
   margin-left: var(--sidebar-collapsed-width);
-  width: calc(100% - var(--sidebar-collapsed-width));
+  width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
