@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main_styles.css') }}">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <button class="toggle-btn toggle-desktop" id="toggleSidebarBtn" aria-label="Развернуть меню">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="toggle-btn toggle-mobile" id="closeSidebarBtn" aria-label="Закрыть меню">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      
+      <a href="/social_passport" class="nav-link" data-path="/social_passport">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        <span class="nav-text">Социальный паспорт группы</span>
+        <span class="nav-text-tooltip">Социальный паспорт группы</span>
+      </a>
+      <a href="/activists" class="nav-link" data-path="/activists">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        <span class="nav-text">Активисты группы</span>
+        <span class="nav-text-tooltip">Активисты группы</span>
+      </a>
+      <a href="/dormitory" class="nav-link" data-path="/dormitory">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg></span>
+        <span class="nav-text">Студенты в общежитии</span>
+        <span class="nav-text-tooltip">Студенты в общежитии</span>
+      </a>
+      <a href="/meetings" class="nav-link" data-path="/meetings">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        <span class="nav-text">Родительские собрания</span>
+        <span class="nav-text-tooltip">Родительские собрания</span>
+      </a>
+      <a href="/individual_work" class="nav-link" data-path="/individual_work">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="8" y1="21" x2="16" y2="21"/></svg></span>
+        <span class="nav-text">Индивидуальная работа...</span>
+        <span class="nav-text-tooltip">Индивидуальная работа со студентами/родителями</span>
+      </a>
+      <a href="/extracurricular" class="nav-link" data-path="/extracurricular">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <span class="nav-text">Внеучебная занятость</span>
+        <span class="nav-text-tooltip">Внеучебная занятость</span>
+      </a>
+      <a href="/class_hours" class="nav-link" data-path="/class_hours">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="15" x2="12" y2="12"/><line x1="9" y1="21" x2="15" y2="21"/></svg></span>
+        <span class="nav-text">Классные часы</span>
+        <span class="nav-text-tooltip">Классные часы</span>
+      </a>
+      <a href="/observation_sheet" class="nav-link" data-path="/observation_sheet">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+        <span class="nav-text">Лист наблюдений куратора</span>
+        <span class="nav-text-tooltip">Лист наблюдений куратора</span>
+      </a>
+      <a href="/profile" class="nav-link" data-path="/profile">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <span class="nav-text">Профиль</span>
+        <span class="nav-text-tooltip">Профиль</span>
+      </a>
+      <a href="/logout" class="nav-link logout" data-path="/logout">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span class="nav-text">Выход</span>
+        <span class="nav-text-tooltip">Выход</span>
+      </a>
+    </aside>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <main class="main-area">
+      <header class="header">
+        <div class="header-left">
+          <button class="burger-btn" id="burgerBtn" aria-label="Меню">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <h1>{{ title }}</h1>
+        </div>
+      </header>
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const toggleBtn = document.getElementById('toggleSidebarBtn');
+    const closeBtn = document.getElementById('closeSidebarBtn');
+    const burgerBtn = document.getElementById('burgerBtn');
+    
+    const isMobile = () => window.innerWidth <= 900;
+    
+    function setActiveLink() {
+      const path = window.location.pathname.replace(/\/$/, '');
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const linkPath = link.getAttribute('data-path').replace(/\/$/, '');
+        link.classList.toggle('active', linkPath === path);
+      });
+    }
+    
+    function openMobileMenu() {
+      sidebar.classList.add('mobile-open');
+      overlay.classList.add('active');
+      burgerBtn.classList.add('active');
+    }
+    
+    function closeMobileMenu() {
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('active');
+      burgerBtn.classList.remove('active');
+    }
+    
+    function toggleDesktopMenu() {
+      if (isMobile()) return;
+      const isExpanded = sidebar.classList.contains('expanded');
+      sidebar.classList.toggle('expanded');
+      overlay.classList.toggle('active', !isExpanded);
+    }
+    
+    toggleBtn?.addEventListener('click', toggleDesktopMenu);
+    closeBtn?.addEventListener('click', closeMobileMenu);
+    
+    burgerBtn?.addEventListener('click', () => {
+      if (isMobile()) {
+        if (sidebar.classList.contains('mobile-open')) {
+          closeMobileMenu();
+        } else {
+          openMobileMenu();
+        }
+      } else {
+        toggleDesktopMenu();
+      }
+    });
+    
+    overlay?.addEventListener('click', () => {
+      if (isMobile()) {
+        closeMobileMenu();
+      } else {
+        sidebar.classList.remove('expanded');
+        overlay.classList.remove('active');
+      }
+    });
+    
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => { 
+        if (isMobile()) closeMobileMenu(); 
+      });
+    });
+    
+    window.addEventListener('resize', () => {
+      if (!isMobile()) {
+        closeMobileMenu();
+        overlay.classList.remove('active');
+      } else {
+        sidebar.classList.remove('expanded');
+      }
+    });
+    
+    setActiveLink();
+  </script>
+</body>
+</html>
