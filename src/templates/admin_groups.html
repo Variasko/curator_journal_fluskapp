@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">{{ title }}</h2>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/adminpanel" class="btn btn-cancel">← В меню</a>
+      <a href="#modal" class="btn btn-add">+ Добавить</a>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Наименование группы</th>
+        <th>Год набора</th>
+        <th>Куратор</th>
+        <th style="width: 100px;">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in groups_data %}
+      <tr>
+        <td><strong>{{ item.display_name }}</strong></td>
+        <td>{{ item.group.creation_year }}</td>
+        <td>
+          {% if item.group.curator %}
+            {{ item.group.curator.person.surname }} {{ item.group.curator.person.name[0] }}.
+          {% else %}
+            <span style="color: var(--muted);">—</span>
+          {% endif %}
+        </td>
+        <td class="actions">
+          <a href="?edit={{ item.group.group_id }}" class="btn-icon btn-edit" title="Редактировать">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </a>
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="group_id" value="{{ item.group.group_id }}">
+            <button type="submit" class="btn-icon btn-delete" title="Удалить">
+              <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" style="text-align:center; color:var(--muted); padding: 2rem;">Список групп пуст</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Модальное окно -->
+<div id="modal" class="modal-overlay {% if edit_group %}active{% endif %}">
+  <div class="modal">
+    <div class="modal-header">{{ 'Редактирование группы' if edit_group else 'Новая группа' }}</div>
+    <form method="POST">
+      <input type="hidden" name="action" value="{{ 'edit' if edit_group else 'add' }}">
+      {% if edit_group %}
+        <input type="hidden" name="group_id" value="{{ edit_group.group_id }}">
+      {% endif %}
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Специализация *</label>
+          <select name="specialization_id" required>
+            <option value="">Выберите...</option>
+            {% for s in specs %}
+              <option value="{{ s.specialization_id }}" {{ 'selected' if edit_group and edit_group.specialization_id == s.specialization_id }}>
+                {{ s.specialization_name }} ({{ s.specialization_reduction }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Квалификация *</label>
+          <select name="qualification_id" required>
+            <option value="">Выберите...</option>
+            {% for q in quals %}
+              <option value="{{ q.qualification_id }}" {{ 'selected' if edit_group and edit_group.qualification_id == q.qualification_id }}>
+                {{ q.qualification_name }} ({{ q.qualification_reduction }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Курс *</label>
+          <select name="course_id" required>
+            <option value="">Выберите...</option>
+            {% for c in courses %}
+              <option value="{{ c.course_id }}" {{ 'selected' if edit_group and edit_group.course_id == c.course_id }}>
+                {{ c.course_name }} курс
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Год набора *</label>
+          <input type="number" name="creation_year" min="2000" max="2100" required value="{{ edit_group.creation_year if edit_group else '' }}">
+        </div>
+        <div class="form-group full">
+          <label>Куратор</label>
+          <select name="curator_id">
+            <option value="">Не назначен</option>
+            {% for cur in curators %}
+              <option value="{{ cur.person_id }}" {{ 'selected' if edit_group and edit_group.curator_id == cur.person_id }}>
+                {{ cur.person.surname }} {{ cur.person.name }} {{ cur.person.patronymic or '' }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a href="{{ url_for('groups.manage_groups') }}" class="btn btn-cancel">Отмена</a>
+        <button type="submit" class="btn btn-save">{{ 'Сохранить' if edit_group else 'Создать' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">{{ title }}</h2>
+    <div style="display: flex; gap: 0.75rem;">
+      <!-- Кнопка строго на админ-панель -->
+      <a href="/adminpanel" class="btn btn-cancel">← В меню</a>
+      <a href="#modal" class="btn btn-add">+ Добавить</a>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ФИО</th>
+        <th>Логин</th>
+        <th>Роль</th>
+        <th>Телефон</th>
+        <th style="width: 100px;">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for curator in curators %}
+      <tr>
+        <td>{{ curator.person.surname }} {{ curator.person.name }} {{ curator.person.patronymic or '' }}</td>
+        <td>{{ curator.login }}</td>
+        <td><span class="badge">{{ curator.role.role_name }}</span></td>
+        <td>{{ curator.person.phone or '-' }}</td>
+        <td class="actions">
+          <a href="?edit={{ curator.person_id }}" class="btn-icon btn-edit" title="Редактировать">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </a>
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="person_id" value="{{ curator.person_id }}">
+            <button type="submit" class="btn-icon btn-delete" title="Удалить">
+              <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" style="text-align:center; color:var(--muted); padding: 2rem;">Список кураторов пуст</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Модальное окно -->
+<div id="modal" class="modal-overlay {% if edit_curator %}active{% endif %}">
+  <div class="modal">
+    <div class="modal-header">{{ 'Редактирование куратора' if edit_curator else 'Новый куратор' }}</div>
+    
+    <form method="POST">
+      <input type="hidden" name="action" value="{{ 'edit' if edit_curator else 'add' }}">
+      {% if edit_curator %}
+        <input type="hidden" name="person_id" value="{{ edit_curator.person_id }}">
+      {% endif %}
+
+      <div class="form-grid">
+        <!-- Блок Person -->
+        <div class="form-group">
+          <label>Фамилия *</label>
+          <!-- Исправлено: value="{{ val or '' }}" чтобы не было текста "None" -->
+          <input type="text" name="surname" value="{{ edit_person.surname or '' }}" maxlength="50" required>
+        </div>
+        <div class="form-group">
+          <label>Имя *</label>
+          <input type="text" name="name" value="{{ edit_person.name or '' }}" maxlength="50" required>
+        </div>
+        <div class="form-group full">
+          <label>Отчество</label>
+          <input type="text" name="patronymic" value="{{ edit_person.patronymic or '' }}" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label>Серия паспорта</label>
+          <!-- Убрали жёсткую валидацию, если поле пустое -->
+          <input type="text" name="passport_serial" value="{{ edit_person.passport_serial or '' }}" maxlength="4" pattern="\d*">
+        </div>
+        <div class="form-group">
+          <label>Номер паспорта</label>
+          <input type="text" name="passport_number" value="{{ edit_person.passport_number or '' }}" maxlength="6" pattern="\d*">
+        </div>
+        <div class="form-group full">
+          <label>Телефон</label>
+          <!-- Просто ограничение длины -->
+          <input type="tel" name="phone" value="{{ edit_person.phone or '' }}" maxlength="20">
+        </div>
+
+        <!-- Блок Curator -->
+        <div class="form-group">
+          <label>Логин *</label>
+          <input type="text" name="login" value="{{ edit_curator.login or '' }}" maxlength="30" required>
+        </div>
+        <div class="form-group">
+          <label>Пароль {{ '(пусто = без изменений)' if edit_curator else '*' }}</label>
+          <!-- При редактировании пароль не обязателен -->
+          <input type="password" name="password" {{ 'required' if not edit_curator else '' }}>
+        </div>
+        <div class="form-group full">
+          <label>Роль *</label>
+          <select name="role_id" required>
+            {% for role in roles %}
+              <option value="{{ role.role_id }}" {{ 'selected' if (edit_curator and edit_curator.role_id == role.role_id) or (not edit_curator and role.role_id == 2) }}>
+                {{ role.role_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a href="{{ url_for('curators.manage_curators') }}" class="btn btn-cancel">Отмена</a>
+        <button type="submit" class="btn btn-save">{{ 'Сохранить' if edit_curator else 'Создать' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -5,8 +5,10 @@ from datetime import timedelta
 
 from database.models import Curator, Person
 from database.database import SessionLocal, init_db
-from utils import login_required, verify_password, admin_required
+from utilities import login_required, verify_password, admin_required
 from config.config import SECRET_KEY
+
+from routers import *
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -109,6 +111,20 @@ def logout():
 @admin_required
 def adminpanel():
     return render_template("admin_panel.html", title="Админитрирование")
+
+
+app.register_blueprint(curators_bp)
+app.register_blueprint(students_bp)
+app.register_blueprint(groups_bp)
+app.register_blueprint(specs_bp)
+app.register_blueprint(quals_bp)
+app.register_blueprint(roles_bp)
+app.register_blueprint(parents_bp)
+app.register_blueprint(student_parents_bp)
+app.register_blueprint(statuses_bp)
+app.register_blueprint(posts_bp)
+app.register_blueprint(hobbies_bp)
+app.register_blueprint(import_bp)
 
 if __name__ == "__main__":
     app.run(host="192.168.1.17", debug=True)

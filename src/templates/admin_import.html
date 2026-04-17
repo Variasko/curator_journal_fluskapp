@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">{{ title }}</h2>
+    <a href="/adminpanel" class="btn btn-cancel">← Назад</a>
+  </div>
+
+  <div style="padding: 1.5rem;">
+    
+    <h3 style="margin-bottom: 1rem; color: var(--muted);">1. Скачайте шаблон</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem;">
+      {% for t_name, t_headers in templates.items() %}
+        <a href="{{ url_for('import_data.download_template', table_type=t_name) }}" 
+           class="btn btn-cancel" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+           📥 {{ t_name|capitalize }}
+        </a>
+      {% endfor %}
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">
+
+    <h3 style="margin-bottom: 1rem; color: var(--muted);">2. Загрузите заполненный CSV</h3>
+    <form action="{{ url_for('import_data.upload_csv') }}" method="POST" enctype="multipart/form-data" 
+          style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 300px;">
+        <label style="display: block; margin-bottom: 0.5rem; color: var(--muted);">Файл CSV</label>
+        <input type="file" name="file" accept=".csv" required 
+               style="width: 100%; padding: 0.8rem; border: 2px dashed var(--border); border-radius: 8px; background: #f9fafb;">
+      </div>
+      <button type="submit" class="btn btn-add" style="height: 46px;">🚀 Импортировать</button>
+    </form>
+
+    <div style="margin-top: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem; color: var(--muted);">
+      <strong>💡 Подсказки:</strong>
+      <ul style="margin: 0.5rem 0 0 1.2rem; line-height: 1.6;">
+        <li>Система автоматически определит таблицу по заголовкам файла</li>
+        <li>Для поля <code>role_name</code> можно указывать как название роли (<code>Куратор</code>), так и её ID (<code>1</code>, <code>2</code>)</li>
+        <li>Дубликаты (по ФИО+телефону для людей) будут пропущены</li>
+        <li>Сохраняйте CSV в кодировке <strong>UTF-8</strong> (в Excel: «Файл» → «Сохранить как» → «CSV UTF-8»)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

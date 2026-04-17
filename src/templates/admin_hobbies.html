@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">{{ title }}</h2>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/adminpanel" class="btn btn-cancel">← Назад</a>
+      <a href="#modal" class="btn btn-add">+ Добавить</a>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Тип увлечения</th><th style="width: 100px;">Действия</th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.hobby_type_name }}</td>
+        <td class="actions">
+          <a href="?edit={{ item.hobby_type_id }}" class="btn-icon btn-edit"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
+          <form method="POST" style="display:inline;"><input type="hidden" name="action" value="delete"><input type="hidden" name="item_id" value="{{ item.hobby_type_id }}"><button type="submit" class="btn-icon btn-delete"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></form>
+        </td>
+      </tr>
+      {% else %}<tr><td colspan="2" style="text-align:center; color:var(--muted); padding: 2rem;">Список пуст</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="modal" class="modal-overlay {% if edit_item %}active{% endif %}">
+  <div class="modal">
+    <div class="modal-header">{{ 'Редактирование' if edit_item else 'Новое хобби' }}</div>
+    <form method="POST">
+      <input type="hidden" name="action" value="{{ 'edit' if edit_item else 'add' }}">
+      {% if edit_item %}<input type="hidden" name="item_id" value="{{ edit_item.hobby_type_id }}">{% endif %}
+      <div class="form-group">
+        <label>Название *</label>
+        <input type="text" name="name" value="{{ edit_item.hobby_type_name or '' }}" maxlength="50" required>
+      </div>
+      <div class="modal-footer">
+        <a href="{{ url_for('hobbies.manage_hobbies') }}" class="btn btn-cancel">Отмена</a>
+        <button type="submit" class="btn btn-save">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

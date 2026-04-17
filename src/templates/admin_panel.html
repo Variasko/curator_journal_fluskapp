@@ -5,19 +5,116 @@
   <div class="card-header">
     <h2 class="card-title">Управление системой</h2>
   </div>
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-    <a href="/admin/curators" class="btn btn-add" style="padding: 1.5rem; justify-content: center; font-size: 1rem;">
-      <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Кураторы
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+    
+    <a href="/admin/curators" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #f0f7ff; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #3b82f6; stroke-width: 2;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Кураторы</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Управление доступом</span>
     </a>
-    <a href="/admin/groups" class="btn btn-add" style="padding: 1.5rem; justify-content: center; font-size: 1rem; opacity: 0.6; pointer-events: none;">
-      <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      Группы (скоро)
+
+    <a href="/admin/students" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #f0fdf4; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #16a34a; stroke-width: 2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Студенты</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Список групп и состав</span>
     </a>
-    <a href="/admin/students" class="btn btn-add" style="padding: 1.5rem; justify-content: center; font-size: 1rem; opacity: 0.6; pointer-events: none;">
-      <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Студенты (скоро)
+
+    <a href="/admin/groups" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #faf5ff; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: var(--primary); stroke-width: 2;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Группы</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Специальности и потоки</span>
     </a>
+
+    <a href="/admin/specializations" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #eff6ff; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #2563eb; stroke-width: 2;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Специальности</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Направления обучения</span>
+    </a>
+
+    <a href="/admin/qualifications" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #fff7ed; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #ea580c; stroke-width: 2;"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Квалификации</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Уровни подготовки</span>
+    </a>
+
+    
+    <a href="/admin/roles" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #fdf4ff; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #9333ea; stroke-width: 2;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Роли</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Права доступа</span>
+    </a>
+
+    
+    <a href="/admin/parents" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #f0fdf4; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #16a34a; stroke-width: 2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Родители</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Контакты и ФИО</span>
+    </a>
+
+    
+    <a href="/admin/social-statuses" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #fff1f2; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #e11d48; stroke-width: 2;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Соц. статусы</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Категории студентов</span>
+    </a>
+
+    
+    <a href="/admin/posts" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #f8fafc; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #64748b; stroke-width: 2;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Должности</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">В группе</span>
+    </a>
+
+    
+    <a href="/admin/hobbies" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #fefce8; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #ca8a04; stroke-width: 2;"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Хобби</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Типы увлечений</span>
+    </a>
+
+    
+    <a href="/admin/student-parents" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; box-shadow: var(--shadow-sm);">
+      <div style="background: #f0f9ff; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: #0ea5e9; stroke-width: 2;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Родители студентов</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Привязка контактов</span>
+    </a>
+        
+    <a href="/admin/import" class="btn-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-decoration: none; color: var(--text); background: var(--surface); border: 2px dashed var(--primary); border-radius: var(--radius); transition: all 0.2s;">
+      <div style="background: #f3f0ff; padding: 0.75rem; border-radius: 50%; margin-bottom: 1rem;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: var(--primary); stroke-width: 2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <span style="font-weight: 600; font-size: 1.1rem;">Импорт CSV</span>
+      <span style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">Быстрый старт системы</span>
+    </a>
+
   </div>
 </div>
+
+<style>
+  .btn-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
+  .btn-card:hover svg { stroke: var(--primary); }
+</style>
 {% endblock %}

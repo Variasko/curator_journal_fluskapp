@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">{{ title }}</h2>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/adminpanel" class="btn btn-cancel">← Назад</a>
+      <a href="#modal" class="btn btn-add">+ Добавить</a>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ФИО</th>
+        <th>Статус</th>
+        <th>Группа</th>
+        <th style="width: 100px;">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student, person, group_label in students %}
+      <tr>
+        <td>{{ person.surname }} {{ person.name }} {{ person.patronymic or '' }}</td>
+        <td>
+          <span class="badge {{ 'badge-success' if not student.is_expelled else 'badge-danger' }}">
+            {{ 'Учится' if not student.is_expelled else 'Отчислен' }}
+          </span>
+        </td>
+        <td>{{ group_label }}</td>
+        <td class="actions">
+          <a href="?edit={{ person.person_id }}" class="btn-icon btn-edit" title="Редактировать">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </a>
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="person_id" value="{{ person.person_id }}">
+            <button type="submit" class="btn-icon btn-delete" title="Удалить">
+              <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" style="text-align:center; color:var(--muted); padding: 2rem;">Список пуст</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+<div id="modal" class="modal-overlay {% if edit_student %}active{% endif %}">
+  <div class="modal">
+    <div class="modal-header">{{ 'Редактирование студента' if edit_student else 'Новый студент' }}</div>
+    <form method="POST">
+      <input type="hidden" name="action" value="{{ 'edit' if edit_student else 'add' }}">
+      {% if edit_student %}
+        <input type="hidden" name="person_id" value="{{ edit_student.person_id }}">
+      {% endif %}
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Фамилия *</label>
+          <input type="text" name="surname" value="{{ edit_person.surname or '' }}" maxlength="50" required>
+        </div>
+        <div class="form-group">
+          <label>Имя *</label>
+          <input type="text" name="name" value="{{ edit_person.name or '' }}" maxlength="50" required>
+        </div>
+        <div class="form-group full">
+          <label>Отчество</label>
+          <input type="text" name="patronymic" value="{{ edit_person.patronymic or '' }}" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label>Серия паспорта</label>
+          <input type="text" name="passport_serial" value="{{ edit_person.passport_serial or '' }}" maxlength="4" pattern="\d{0,4}">
+        </div>
+        <div class="form-group">
+          <label>Номер паспорта</label>
+          <input type="text" name="passport_number" value="{{ edit_person.passport_number or '' }}" maxlength="6" pattern="\d{0,6}">
+        </div>
+        <div class="form-group full">
+          <label>Телефон</label>
+          <input type="tel" name="phone" value="{{ edit_person.phone or '' }}" maxlength="20">
+        </div>
+        <div class="form-group">
+          <label>Группа</label>
+          <select name="group_id">
+            <option value="">Не распределён</option>
+            {% for g_id, g_name in groups_list %}
+              <option value="{{ g_id }}" {{ 'selected' if edit_group_id == g_id }}>
+                {{ g_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group full" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
+          <input type="checkbox" id="is_expelled" name="is_expelled" {{ 'checked' if edit_student and edit_student.is_expelled }}>
+          <label for="is_expelled" style="margin:0;cursor:pointer;">Студент отчислен</label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a href="{{ url_for('students.manage_students') }}" class="btn btn-cancel">Отмена</a>
+        <button type="submit" class="btn btn-save">{{ 'Сохранить' if edit_student else 'Создать' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
