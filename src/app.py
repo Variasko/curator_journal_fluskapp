@@ -3,23 +3,39 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from database.models import Curator, Person
-from database.database import SessionLocal, init_db
+from database.models import Curator
+from database.database import SessionLocal
 from utilities import login_required, verify_password, admin_required
 from config.config import SECRET_KEY
 
-from routers import *
+
+from routers import (
+    profile_bp, curators_bp, students_bp, groups_bp,
+    specs_bp, quals_bp, roles_bp, parents_bp,
+    student_parents_bp, statuses_bp, posts_bp, hobbies_bp,
+    import_bp, social_bp, activists_bp, dormitory_bp,
+    extracurricular_bp, observation_bp, parent_meetings_bp,
+    indiv_bp, class_hours_bp
+)
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
-
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
-@app.route('/')
-@app.route('/profile')
-@login_required
-def index():
-    return render_template("index.html", title="Профиль")
+
+blueprints = [
+    profile_bp, curators_bp, students_bp, groups_bp,
+    specs_bp, quals_bp, roles_bp, parents_bp,
+    student_parents_bp, statuses_bp, posts_bp, hobbies_bp,
+    import_bp, social_bp, activists_bp, dormitory_bp,
+    extracurricular_bp, observation_bp, parent_meetings_bp,
+    indiv_bp, class_hours_bp
+]
+
+for bp in blueprints:
+    app.register_blueprint(bp)
+
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -36,7 +52,6 @@ def login():
             stmt = select(Curator).where(Curator.login == login_input)
             curator = db.scalar(stmt)
 
-            
             if not curator or not verify_password(password_input, curator.password_hash):
                 flash("Неверный логин или пароль", "error")
                 return render_template("login.html")
@@ -45,86 +60,31 @@ def login():
             session["person_role"] = curator.role_id
             session.permanent = True
 
-            
             next_page = request.args.get("next")
-            return redirect(next_page or url_for("index"))
+            
+            return redirect(next_page or url_for("profile.index"))
 
         finally:
             db.close()
 
     return render_template("login.html")
 
-@app.route('/social_passport')
-@login_required
-def social_passport():
-    return render_template("social_passport.html", title="Социальный паспорт группы")
 
-@app.route('/activists')
-@login_required
-def activists():
-    return render_template("activists.html", title="Активисты группы")
-
-@app.route('/dormitory')
-@login_required
-def dormitory():
-    return render_template("dormitory.html", title="Студенты в общежитии")
-
-@app.route('/meetings')
-@login_required
-def meetings():
-    return render_template("meetings.html", title="Родительские собрания")
-
-@app.route('/individual_work')
-@login_required
-def individual_work():
-    return render_template("individual_work.html", title="Индивидуальная работа")
-
-@app.route('/extracurricular')
-@login_required
-def extracurricular():
-    return render_template("extracurricular.html", title="Внеучебная занятость")
-
-@app.route('/class_hours')
-@login_required
-def class_hours():
-    return render_template("class_hours.html", title="Классные часы")
-
-@app.route('/observation_sheet')
-@login_required
-def observation_sheet():
-    return render_template("observation_sheet.html", title="Лист наблюдеиния")
-
-@app.route('/report')
-@login_required
-def report():
-    return render_template("report.html", title="Отчёты")
-
-@app.route('/logout')
+@app.route("/logout")
 @login_required
 def logout():
     session.clear()
     flash("Вы успешно вышли из системы", "success")
-    return redirect(url_for('login'))
+    return redirect(url_for("login"))
 
-@app.route('/adminpanel')
+
+@app.route("/adminpanel")
 @login_required
 @admin_required
 def adminpanel():
-    return render_template("admin_panel.html", title="Админитрирование")
+    
+    return render_template("admin_panel.html", title="Администрирование")
 
-
-app.register_blueprint(curators_bp)
-app.register_blueprint(students_bp)
-app.register_blueprint(groups_bp)
-app.register_blueprint(specs_bp)
-app.register_blueprint(quals_bp)
-app.register_blueprint(roles_bp)
-app.register_blueprint(parents_bp)
-app.register_blueprint(student_parents_bp)
-app.register_blueprint(statuses_bp)
-app.register_blueprint(posts_bp)
-app.register_blueprint(hobbies_bp)
-app.register_blueprint(import_bp)
 
 if __name__ == "__main__":
-    app.run(host="192.168.1.17", debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

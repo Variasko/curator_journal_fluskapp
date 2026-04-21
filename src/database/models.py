@@ -19,7 +19,7 @@ class Course(Base):
     __tablename__ = "course"
     
     course_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    course_name: Mapped[str] = mapped_column(String(1))  # varchar(1) — как в оригинале
+    course_name: Mapped[str] = mapped_column(String(1))  
 
 
 class Role(Base):
@@ -110,7 +110,7 @@ class Student(Base):
 
 
 class Group(Base):
-    __tablename__ = "group"  # 'group' — зарезервированное слово, но в таблице ок
+    __tablename__ = "group"  
     
     group_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     specialization_id: Mapped[int] = mapped_column(
@@ -169,16 +169,19 @@ class ParentMeeting(Base):
     __tablename__ = "parent_meeting"
     
     parent_meeting_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    visited_count: Mapped[int] = mapped_column(Integer)
-    invited: Mapped[str] = mapped_column(String(200))
-    unvisited: Mapped[str] = mapped_column(String(200))
-    speakers: Mapped[str] = mapped_column(String(200))
-    meteeng_result: Mapped[str] = mapped_column(Text)  # оставил опечатку из оригинала
-    group_id: Mapped[int] = mapped_column(
-        ForeignKey("group.group_id", onupdate="CASCADE", ondelete="CASCADE")
-    )
+    group_id: Mapped[int] = mapped_column(ForeignKey("group.group_id", onupdate="CASCADE", ondelete="CASCADE"))
+    curator_id: Mapped[int] = mapped_column(ForeignKey("curator.person_id"))  
+    meeting_date: Mapped[date] = mapped_column(Date)
+    invited: Mapped[str | None] = mapped_column(Text, nullable=True)          
+    visited_count: Mapped[int] = mapped_column(Integer, default=0)
+    unvisited: Mapped[int] = mapped_column(Integer, default=0)                
+    excused_count: Mapped[int] = mapped_column(Integer, default=0)            
+    topics: Mapped[str | None] = mapped_column(Text, nullable=True)           
+    speakers: Mapped[str | None] = mapped_column(Text, nullable=True)         
+    meeting_result: Mapped[str | None] = mapped_column(Text, nullable=True)   
     
     group: Mapped["Group"] = relationship("Group")
+    curator: Mapped["Curator"] = relationship("Curator")
 
 
 class ObservationList(Base):
@@ -186,6 +189,7 @@ class ObservationList(Base):
     
     observation_list_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     student_id: Mapped[int] = mapped_column(ForeignKey("student.person_id"))
+    observation_date: Mapped[date] = mapped_column(Date)
     characteristic: Mapped[str] = mapped_column(Text)
     
     student: Mapped["Student"] = relationship("Student")
@@ -203,7 +207,7 @@ class StudentIndividualWork(Base):
     student: Mapped["Student"] = relationship("Student")
 
 
-# === Many-to-many таблицы (составные первичные ключи) ===
+
 
 class PostInGroup(Base):
     __tablename__ = "post_in_group"
@@ -216,7 +220,11 @@ class PostInGroup(Base):
         ForeignKey("post_in_group_type.post_in_group_type_id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True
     )
-    course_id: Mapped[int] = mapped_column(ForeignKey("course.course_id"))
+    
+    course_id: Mapped[int] = mapped_column(
+        ForeignKey("course.course_id"),
+        primary_key=True  
+    )
     
     student: Mapped["Student"] = relationship("Student")
     post_in_group_type: Mapped["PostInGroupType"] = relationship("PostInGroupType")

@@ -1,4 +1,128 @@
 {% extends "base.html" %}
-{% block content %}
 
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">{{ title }}</h2>
+    <a href="#modal" class="btn btn-add">+ Добавить</a>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Студент</th>
+        <th>Должность</th>
+        <th>Курсы</th>
+        <th style="width: 120px;">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in activists %}
+      <tr>
+        <td><strong>{{ item.full_name }}</strong></td>
+        <td><span class="badge badge-success">{{ item.post_name }}</span></td>
+        <td>
+          {# Сортируем курсы и выводим через запятую #}
+          {{ item.courses | sort | join(', ') }}
+        </td>
+        <td class="actions">
+          
+          <a href="?edit_student={{ item.student_id }}&edit_post={{ item.post_id }}{% if current_group_id %}&group_id={{ current_group_id }}{% endif %}" 
+             class="btn-icon edit" title="Изменить">✏️</a>
+          
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="student_id" value="{{ item.student_id }}">
+            <input type="hidden" name="post_id" value="{{ item.post_id }}">
+            <input type="hidden" name="group_id" value="{{ current_group_id }}">
+            <button type="submit" class="btn-icon delete" title="Удалить">🗑️</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" style="text-align:center; color:var(--muted); padding: 2rem;">
+        В группе нет активистов
+      </td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+<div id="modal" class="modal-overlay {% if edit_student_id %}active{% endif %}">
+  <div class="modal">
+    <div class="modal-header">{{ 'Редактирование' if edit_student_id else 'Назначить активиста' }}</div>
+    
+    <form method="POST">
+      <input type="hidden" name="action" value="save">
+      <input type="hidden" name="group_id" value="{{ current_group_id }}">
+      
+      {% if edit_student_id %}
+        
+        <input type="hidden" name="student_id" value="{{ edit_student_id }}">
+        <input type="hidden" name="post_id" value="{{ edit_post_id }}">
+        
+        <div class="form-group" style="padding: 0.7rem; background: #f9fafb; border-radius: 8px; margin-bottom: 1rem;">
+          <strong>Студент:</strong> {{ edit_student_name }}<br>
+          <strong>Должность:</strong> 
+          {% for p in all_posts %}
+            {% if p.post_in_group_type_id == edit_post_id %}{{ p.post_in_group_type_name }}{% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        
+        <div class="form-group">
+          <label>Студент *</label>
+          <select name="student_id" required style="width: 100%; padding: 0.7rem; border: 1.5px solid var(--border); border-radius: 8px;">
+            <option value="">Выберите студента...</option>
+            {% for s in students_list %}
+              <option value="{{ s.id }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
+          {% if not students_list %}
+            <small style="color: var(--danger); margin-top: 0.3rem; display: block;">
+              В группе нет активных студентов. Добавьте их через раздел "Студенты".
+            </small>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label>Должность *</label>
+          <select name="post_id" required style="width: 100%; padding: 0.7rem; border: 1.5px solid var(--border); border-radius: 8px;">
+            <option value="">Выберите должность...</option>
+            {% for p in all_posts %}
+              <option value="{{ p.post_in_group_type_id }}">{{ p.post_in_group_type_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+      
+      
+      <div class="form-group">
+        <label>Курсы (где занимает должность)</label>
+        <div class="status-checkboxes">
+          {% for course in all_courses %}
+          <label>
+            <input type="checkbox" name="course_ids" value="{{ course.course_id }}"
+                   {{ 'checked' if course.course_id in edit_courses }}>
+            {{ course.course_name }} курс
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <a href="{{ url_for('activists.index', group_id=current_group_id) }}" class="btn btn-cancel">Отмена</a>
+        <button type="submit" class="btn btn-save">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('modal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    window.location.href = "{{ url_for('activists.index', group_id=current_group_id) }}";
+  }
+});
+</script>
 {% endblock %}

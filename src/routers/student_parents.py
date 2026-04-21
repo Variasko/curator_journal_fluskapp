@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from database.models import StudentParent, Student, Parent, Person
@@ -7,12 +7,14 @@ student_parents_bp = Blueprint('student_parents', __name__, url_prefix='/admin/s
 
 @student_parents_bp.route('/', methods=['GET', 'POST'])
 def manage_student_parents():
+    if 'person_id' not in session:
+        return redirect(url_for('login'))
     db: Session = SessionLocal()
     try:
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'delete':
-                # Удаляем по составному ключу
+                
                 sid = int(request.form.get('student_id'))
                 pid = int(request.form.get('parent_id'))
                 link = db.query(StudentParent).filter_by(student_id=sid, parent_id=pid).first()
@@ -27,7 +29,7 @@ def manage_student_parents():
                     flash('Выберите студента и родителя', 'error')
                     return redirect(url_for('student_parents.manage_student_parents'))
                 
-                # Проверка на дубликат
+                
                 if db.query(StudentParent).filter_by(student_id=sid, parent_id=pid).first():
                     flash('Такая связь уже существует', 'error')
                     return redirect(url_for('student_parents.manage_student_parents'))
@@ -37,12 +39,12 @@ def manage_student_parents():
                 flash('Связь добавлена', 'success')
                 return redirect(url_for('student_parents.manage_student_parents'))
 
-        # GET: Список связей
-        links = db.query(StudentParent).all()
-        students = db.query(Student).join(Person).all() # Для селекта
-        parents = db.query(Parent).all() # Для селекта
         
-        # Для удобства отображения таблицы соберём данные
+        links = db.query(StudentParent).all()
+        students = db.query(Student).join(Person).all() 
+        parents = db.query(Parent).all() 
+        
+        
         table_data = []
         for link in links:
             student = db.query(Student).join(Person).filter(Student.person_id == link.student_id).first()

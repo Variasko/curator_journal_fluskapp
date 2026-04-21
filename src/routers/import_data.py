@@ -1,4 +1,3 @@
-# routes/import_data.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
 import io
 import csv
@@ -30,7 +29,7 @@ def download_template(table_type):
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(TEMPLATES[table_type])
-    writer.writerow([''] * len(TEMPLATES[table_type]))  # пустая строка для примера
+    writer.writerow([''] * len(TEMPLATES[table_type]))  
     
     output.seek(0)
     return send_file(
@@ -53,7 +52,7 @@ def upload_csv():
 
     db = None
     try:
-        # Сбрасываем файл в начало перед чтением
+        
         file.stream.seek(0)
         
         db = SessionLocal()

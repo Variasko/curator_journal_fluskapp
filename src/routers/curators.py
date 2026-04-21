@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from database.models import Curator, Person, Role
@@ -8,30 +8,27 @@ curators_bp = Blueprint('curators', __name__, url_prefix='/admin/curators')
 
 @curators_bp.route('/', methods=['GET', 'POST'])
 def manage_curators():
+    if 'person_id' not in session:
+        return redirect(url_for('login'))
+    
     db: Session = SessionLocal()
     try:
         if request.method == 'POST':
             action = request.form.get('action')
-
-            # --- УДАЛЕНИЕ ---
+            
             if action == 'delete':
                 person_id = int(request.form.get('person_id'))
                 curator = db.query(Curator).filter(Curator.person_id == person_id).first()
                 if curator:
-                    db.delete(curator) # Удалит и запись в Person благодаря CASCADE, если настроено, 
-                                       # либо нужно удалять person отдельно. 
-                                       # В твоих моделях стоит ondelete="CASCADE" для FK, 
-                                       # но так как Curator ссылается на Person, удаляется только Curator.
-                    # Если нужно удалить и самого человека:
-                    # person = db.query(Person).filter(Person.person_id == person_id).first()
-                    # if person: db.delete(person)
+                    db.delete(curator) 
+                    
                     db.commit()
                     flash('Куратор удалён', 'success')
                 return redirect(url_for('curators.manage_curators'))
 
-            # --- ДОБАВЛЕНИЕ ИЛИ РЕДАКТИРОВАНИЕ ---
+            
             if action in ('add', 'edit'):
-                # Сбор данных из формы
+                
                 surname = request.form.get('surname', '').strip()
                 name = request.form.get('name', '').strip()
                 patronymic = request.form.get('patronymic', '').strip()
@@ -60,7 +57,7 @@ def manage_curators():
                         person.passport_number = passport_number or None
                         person.phone = phone or None
                 else:
-                    # Логика проверки существующей персоны по телефону
+                    
                     existing_person = db.query(Person).filter(
                         Person.phone == phone, 
                         Person.phone.isnot(None)
@@ -68,12 +65,12 @@ def manage_curators():
 
                     if existing_person:
                         person_id = existing_person.person_id
-                        # Обновляем ФИО у существующей, если нужно
+                        
                         existing_person.surname = surname
                         existing_person.name = name
                         existing_person.patronymic = patronymic or None
                     else:
-                        # Создаем новую персону
+                        
                         new_person = Person(
                             surname=surname, name=name, patronymic=patronymic or None,
                             passport_serial=passport_serial or None,
@@ -81,10 +78,9 @@ def manage_curators():
                             phone=phone or None
                         )
                         db.add(new_person)
-                        db.flush() # Получаем ID
+                        db.flush() 
                         person_id = new_person.person_id
 
-                    # Создаем куратора (только при добавлении)
                     new_curator = Curator(
                         person_id=person_id, 
                         login=login,
@@ -93,25 +89,21 @@ def manage_curators():
                     )
                     db.add(new_curator)
 
-                # При редактировании обновляем данные куратора
                 if action == 'edit':
                     curator = db.query(Curator).filter(Curator.person_id == person_id).first()
                     if curator:
                         curator.login = login
                         curator.role_id = role_id
-                        if password: # Обновляем пароль только если ввели новый
+                        if password: 
                             curator.password_hash = generate_password_hash(password)
 
                 db.commit()
                 flash('Данные сохранены', 'success')
                 return redirect(url_for('curators.manage_curators'))
 
-        # --- GET (Отображение списка) ---
-        # Загружаем кураторов с привязанными объектами
         curators = db.query(Curator).all()
         roles = db.query(Role).all()
 
-        # Данные для предзаполнения формы редактирования
         edit_curator = None
         edit_person = None
         edit_id = request.args.get('edit')

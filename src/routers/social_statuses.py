@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from database.models import SocialStatus
@@ -7,6 +7,8 @@ statuses_bp = Blueprint('social_statuses', __name__, url_prefix='/admin/social-s
 
 @statuses_bp.route('/', methods=['GET', 'POST'])
 def manage_social_statuses():
+    if 'person_id' not in session:
+        return redirect(url_for('login'))
     db: Session = SessionLocal()
     try:
         if request.method == 'POST':

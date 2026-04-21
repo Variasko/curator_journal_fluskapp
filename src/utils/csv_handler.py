@@ -1,4 +1,3 @@
-# utils/csv_handler.py
 import csv
 import io
 from werkzeug.security import generate_password_hash
@@ -36,18 +35,18 @@ def parse_csv(file_stream):
     Читает поток файла CSV и возвращает список словарей.
     Поддерживает utf-8-sig (Excel) и обычный utf-8.
     """
-    # Сбрасываем позицию файла в начало (на случай, если уже читали)
+    
     file_stream.seek(0)
     
-    # Пробуем utf-8-sig (с BOM) — формат, который использует Excel при сохранении CSV
+    
     try:
         stream = io.TextIOWrapper(file_stream, encoding='utf-8-sig', newline='')
         reader = csv.DictReader(stream)
         data = list(reader)
-        stream.detach()  # Важно: не закрываем original file_stream
+        stream.detach()  
         return data
     except UnicodeDecodeError:
-        # Если не получилось — пробуем обычный utf-8
+        
         file_stream.seek(0)
         stream = io.TextIOWrapper(file_stream, encoding='utf-8', newline='')
         reader = csv.DictReader(stream)
@@ -64,9 +63,9 @@ def import_data(db, table_type, data):
     try:
         if table_type == 'curators':
             redirect_url = "/admin/curators"
-            for idx, row in enumerate(data, start=2):  # start=2 т.к. 1-я строка — заголовки
+            for idx, row in enumerate(data, start=2):  
                 try:
-                    # === 1. Работа с Person ===
+                    
                     surname = row.get('surname', '').strip()
                     name = row.get('name', '').strip()
                     patronymic = row.get('patronymic', '').strip() or None
@@ -76,7 +75,7 @@ def import_data(db, table_type, data):
                         errors.append(f"Строка {idx}: пустые ФИО")
                         continue
 
-                    # Ищем существующую персону по ФИО+телефону
+                    
                     person = db.query(Person).filter(
                         Person.surname == surname,
                         Person.name == name,
@@ -91,28 +90,28 @@ def import_data(db, table_type, data):
                             phone=phone
                         )
                         db.add(person)
-                        db.flush()  # Получаем person_id
+                        db.flush()  
 
-                    # === 2. Работа с ролью (поддержка имени и ID) ===
+                    
                     role = None
                     role_input = str(row.get('role_name', '')).strip()
                     
-                    # Пробуем найти по названию
+                    
                     if role_input and not role_input.isdigit():
                         role = db.query(Role).filter_by(role_name=role_input).first()
                     
-                    # Если не нашли или значение похоже на число — ищем по ID
+                    
                     if not role and role_input.isdigit():
                         role = db.query(Role).get(int(role_input))
                     
-                    # Фолбэк: берём первую доступную роль
+                    
                     if not role:
                         role = db.query(Role).first()
                         if not role:
                             errors.append(f"Строка {idx}: нет ролей в системе")
                             continue
 
-                    # === 3. Создаём куратора ===
+                    
                     login = row.get('login', '').strip()
                     password = row.get('password', '').strip()
                     

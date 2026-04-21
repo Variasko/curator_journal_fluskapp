@@ -5,7 +5,7 @@
   <div class="card-header">
     <h2 class="card-title">{{ title }}</h2>
     <div style="display: flex; gap: 0.75rem;">
-      <!-- Кнопка строго на админ-панель -->
+      
       <a href="/adminpanel" class="btn btn-cancel">← В меню</a>
       <a href="#modal" class="btn btn-add">+ Добавить</a>
     </div>
@@ -48,7 +48,7 @@
   </table>
 </div>
 
-<!-- Модальное окно -->
+
 <div id="modal" class="modal-overlay {% if edit_curator %}active{% endif %}">
   <div class="modal">
     <div class="modal-header">{{ 'Редактирование куратора' if edit_curator else 'Новый куратор' }}</div>
@@ -60,10 +60,10 @@
       {% endif %}
 
       <div class="form-grid">
-        <!-- Блок Person -->
+        
         <div class="form-group">
           <label>Фамилия *</label>
-          <!-- Исправлено: value="{{ val or '' }}" чтобы не было текста "None" -->
+          
           <input type="text" name="surname" value="{{ edit_person.surname or '' }}" maxlength="50" required>
         </div>
         <div class="form-group">
@@ -76,7 +76,7 @@
         </div>
         <div class="form-group">
           <label>Серия паспорта</label>
-          <!-- Убрали жёсткую валидацию, если поле пустое -->
+          
           <input type="text" name="passport_serial" value="{{ edit_person.passport_serial or '' }}" maxlength="4" pattern="\d*">
         </div>
         <div class="form-group">
@@ -85,18 +85,18 @@
         </div>
         <div class="form-group full">
           <label>Телефон</label>
-          <!-- Просто ограничение длины -->
+          
           <input type="tel" name="phone" value="{{ edit_person.phone or '' }}" maxlength="20">
         </div>
 
-        <!-- Блок Curator -->
+        
         <div class="form-group">
           <label>Логин *</label>
           <input type="text" name="login" value="{{ edit_curator.login or '' }}" maxlength="30" required>
         </div>
         <div class="form-group">
           <label>Пароль {{ '(пусто = без изменений)' if edit_curator else '*' }}</label>
-          <!-- При редактировании пароль не обязателен -->
+          
           <input type="password" name="password" {{ 'required' if not edit_curator else '' }}>
         </div>
         <div class="form-group full">

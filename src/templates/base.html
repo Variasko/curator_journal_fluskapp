@@ -31,7 +31,7 @@
         <span class="nav-text">Студенты в общежитии</span>
         <span class="nav-text-tooltip">Студенты в общежитии</span>
       </a>
-      <a href="/meetings" class="nav-link" data-path="/meetings">
+      <a href="/parent_meetings" class="nav-link" data-path="/parent_meetings">
         <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
         <span class="nav-text">Родительские собрания</span>
         <span class="nav-text-tooltip">Родительские собрания</span>
@@ -88,17 +88,31 @@
       <header class="header">
         <div class="header-left">
           <button class="burger-btn" id="burgerBtn" aria-label="Меню">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span>
           </button>
           <h1>{{ title }}</h1>
         </div>
+        
+        {# === УНИВЕРСАЛЬНЫЙ СЕЛЕКТОР ГРУПП (показывается если переданы groups) === #}
+        {% if groups and current_group_id is defined %}
+        <form method="GET" class="group-selector" style="display: flex; gap: 0.5rem; align-items: center;">
+          <label for="group_select" style="font-size: 0.9rem; color: var(--muted);">Группа:</label>
+          <select name="group_id" id="group_select" onchange="this.form.submit()" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 0.95rem;">
+            {% for g in groups %}
+              <option value="{{ g.group_id }}" {{ 'selected' if g.group_id == current_group_id }}>
+                {{ g.display_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </form>
+        {% endif %}
       </header>
+      
       <div class="content">
         {% block content %}{% endblock %}
       </div>
     </main>
+  </div>
   </div>
 
   <script>

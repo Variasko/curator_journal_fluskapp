@@ -7,6 +7,8 @@ hobbies_bp = Blueprint('hobbies', __name__, url_prefix='/admin/hobbies')
 
 @hobbies_bp.route('/', methods=['GET', 'POST'])
 def manage_hobbies():
+    if 'person_id' not in session:
+        return redirect(url_for('login'))
     db: Session = SessionLocal()
     try:
         if request.method == 'POST':

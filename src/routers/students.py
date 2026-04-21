@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from database.models import Student, Person, Group, StudentInGroup
@@ -9,6 +9,8 @@ students_bp = Blueprint('students', __name__, url_prefix='/admin/students')
 
 @students_bp.route('/', methods=['GET', 'POST'])
 def manage_students():
+    if 'person_id' not in session:
+        return redirect(url_for('login'))
     db: Session = SessionLocal()
     try:
         if request.method == 'POST':

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from database.models import Qualification
@@ -7,6 +7,8 @@ quals_bp = Blueprint('qualifications', __name__, url_prefix='/admin/qualificatio
 
 @quals_bp.route('/', methods=['GET', 'POST'])
 def manage_qualifications():
+    if 'person_id' not in session:
+        return redirect(url_for('login'))
     db: Session = SessionLocal()
     try:
         if request.method == 'POST':

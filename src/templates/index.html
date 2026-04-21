@@ -1,4 +1,101 @@
 {% extends "base.html" %}
-{% block content %}
 
+{% block content %}
+<div style="display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; align-items: start;">
+  
+  
+  <div class="card" style="text-align: center; padding: 2rem 1.5rem;">
+    <div style="position: relative; display: inline-block; margin-bottom: 1.2rem;">
+      <img src="{{ url_for('profile.get_avatar', person_id=person.person_id) }}" 
+           alt="Аватар" 
+           style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 4px solid var(--surface); box-shadow: var(--shadow-md);">
+    </div>
+    <h2 style="font-size: 1.25rem; margin-bottom: 0.3rem;">{{ person.surname }} {{ person.name }} {{ person.patronymic or '' }}</h2>
+    <p style="color: var(--primary); font-weight: 500; margin-bottom: 1.2rem;">{{ curator.role.role_name if curator.role else 'Куратор' }}</p>
+    
+    <div style="text-align: left; font-size: 0.9rem; color: var(--text); line-height: 1.7; margin-bottom: 1.5rem; background: #f8fafc; padding: 1rem; border-radius: 10px;">
+      <div>📱 {{ person.phone or 'Телефон не указан' }}</div>
+      <div>🔑 {{ curator.login }}</div>
+      <div>🆔 ID: {{ person.person_id }}</div>
+    </div>
+    
+    <a href="#editModal" class="btn btn-add" style="width: 100%;">Редактировать профиль</a>
+  </div>
+
+  
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+      <div class="card" style="padding: 1.2rem; text-align: center;">
+        <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">{{ stats.groups }}</div>
+        <div style="color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem;">Группы</div>
+      </div>
+      <div class="card" style="padding: 1.2rem; text-align: center;">
+        <div style="font-size: 2rem; font-weight: 700; color: #16a34a;">{{ stats.students }}</div>
+        <div style="color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem;">Студенты</div>
+      </div>
+      <div class="card" style="padding: 1.2rem; text-align: center;">
+        <div style="font-size: 2rem; font-weight: 700; color: #ea580c;">{{ stats.observations }}</div>
+        <div style="color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem;">Наблюдения</div>
+      </div>
+      <div class="card" style="padding: 1.2rem; text-align: center;">
+        <div style="font-size: 2rem; font-weight: 700; color: #9333ea;">{{ stats.class_hours }}</div>
+        <div style="color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem;">Классные часы</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 0.8rem; font-size: 1.1rem;">Быстрый доступ</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+        <a href="/social_passport" class="btn btn-cancel" style="justify-content: center;">📋 Соц. паспорт</a>
+        <a href="/activists" class="btn btn-cancel" style="justify-content: center;">⭐ Активисты</a>
+        <a href="/observation_sheet" class="btn btn-cancel" style="justify-content: center;">📝 Лист наблюдений</a>
+        <a href="/class_hours" class="btn btn-cancel" style="justify-content: center;">🕐 Классные часы</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="editModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">Редактирование профиля</div>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="action" value="update_info">
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Фамилия *</label>
+          <input type="text" name="surname" value="{{ person.surname }}" required>
+        </div>
+        <div class="form-group">
+          <label>Имя *</label>
+          <input type="text" name="name" value="{{ person.name }}" required>
+        </div>
+        <div class="form-group full">
+          <label>Отчество</label>
+          <input type="text" name="patronymic" value="{{ person.patronymic or '' }}">
+        </div>
+        <div class="form-group full">
+          <label>Телефон</label>
+          <input type="tel" name="phone" value="{{ person.phone or '' }}">
+        </div>
+        <div class="form-group full">
+          <label>Аватар (JPG/PNG, до 2МБ)</label>
+          <input type="file" name="avatar" accept="image/jpeg, image/png" style="padding: 0.5rem;">
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <a href="{{ url_for('profile.index') }}" class="btn btn-cancel">Отмена</a>
+        <button type="submit" class="btn btn-save">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('editModal')?.addEventListener('click', function(e) {
+  if (e.target === this) window.location.href = "{{ url_for('profile.index') }}";
+});
+</script>
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from database.models import Group, Specialization, Qualification, Course, Curator
@@ -6,13 +6,16 @@ from database.models import Group, Specialization, Qualification, Course, Curato
 groups_bp = Blueprint('groups', __name__, url_prefix='/admin/groups')
 
 def format_group_name(group):
+    if 'person_id' not in session:
+        return redirect(url_for('login'))
+    
     """Формирует название по шаблону: {Спец}-{Курс}{Год}{Квал}"""
     if not all([group.specialization, group.qualification, group.course]):
         return f"Группа #{group.group_id}"
     
     spec = group.specialization.specialization_reduction
     course = group.course.course_name
-    year_suffix = f"{group.creation_year % 100:02d}"  # Берём последние 2 цифры (2024 -> 24)
+    year_suffix = f"{group.creation_year % 100:02d}"  
     qual = group.qualification.qualification_reduction
     
     return f"{spec}-{course}{year_suffix}{qual}"
@@ -69,9 +72,7 @@ def manage_groups():
                 flash('Группа сохранена', 'success')
                 return redirect(url_for('groups.manage_groups'))
 
-        # GET: Сбор данных
         groups_raw = db.query(Group).all()
-        # Сразу формируем список с готовыми названиями для шаблона
         groups_data = [{'group': g, 'display_name': format_group_name(g)} for g in groups_raw]
 
         specs = db.query(Specialization).all()
