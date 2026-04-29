@@ -157,10 +157,11 @@ class Group(Base):
         )
     )
 
-    qualification_id: Mapped[int] = mapped_column(
+    qualification_id: Mapped[int | None] = mapped_column(
         ForeignKey(
             "qualification.qualification_id", onupdate="CASCADE", ondelete="CASCADE"
-        )
+        ),
+        nullable=True,
     )
 
     course_id: Mapped[int] = mapped_column(ForeignKey("course.course_id"))

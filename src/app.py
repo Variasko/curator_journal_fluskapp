@@ -15,7 +15,6 @@ from utilities import login_required, verify_password, admin_required
 
 from config.config import SECRET_KEY
 
-
 from routers import (
     profile_bp,
     curators_bp,
@@ -38,6 +37,7 @@ from routers import (
     parent_meetings_bp,
     indiv_bp,
     class_hours_bp,
+    reports_bp,
 )
 
 app = Flask(__name__)
@@ -69,6 +69,7 @@ blueprints = [
     parent_meetings_bp,
     indiv_bp,
     class_hours_bp,
+    reports_bp,
 ]
 
 

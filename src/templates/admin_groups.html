@@ -61,57 +61,56 @@
         <input type="hidden" name="group_id" value="{{ edit_group.group_id }}">
       {% endif %}
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Специализация *</label>
-          <select name="specialization_id" required>
-            <option value="">Выберите...</option>
-            {% for s in specs %}
-              <option value="{{ s.specialization_id }}" {{ 'selected' if edit_group and edit_group.specialization_id == s.specialization_id }}>
-                {{ s.specialization_name }} ({{ s.specialization_reduction }})
-              </option>
-            {% endfor %}
-          </select>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Специализация *</label>
+                <select name="specialization_id" required>
+                    <option value="">Выберите...</option>
+                    {% for s in specs %}
+                    <option value="{{ s.specialization_id }}" {{ 'selected' if edit_group and edit_group.specialization_id == s.specialization_id }}>
+                        {{ s.specialization_name }} ({{ s.specialization_reduction }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Квалификация</label>
+                <select name="qualification_id">
+                    <option value="">Не указана</option>
+                    {% for q in quals %}
+                    <option value="{{ q.qualification_id }}" {{ 'selected' if edit_group and edit_group.qualification_id == q.qualification_id }}>
+                        {{ q.qualification_name }} ({{ q.qualification_reduction }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Курс *</label>
+                <select name="course_id" required>
+                    <option value="">Выберите...</option>
+                    {% for c in courses %}
+                    <option value="{{ c.course_id }}" {{ 'selected' if edit_group and edit_group.course_id == c.course_id }}>
+                        {{ c.course_name }} курс
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Год набора *</label>
+                <input type="number" name="creation_year" min="2000" max="2100" required value="{{ edit_group.creation_year if edit_group else '' }}">
+            </div>
+            <div class="form-group full">
+                <label>Куратор</label>
+                <select name="curator_id">
+                    <option value="">Не назначен</option>
+                    {% for cur in curators %}
+                    <option value="{{ cur.person_id }}" {{ 'selected' if edit_group and edit_group.curator_id == cur.person_id }}>
+                        {{ cur.person.surname }} {{ cur.person.name }} {{ cur.person.patronymic or '' }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-        <div class="form-group">
-          <label>Квалификация *</label>
-          <select name="qualification_id" required>
-            <option value="">Выберите...</option>
-            {% for q in quals %}
-              <option value="{{ q.qualification_id }}" {{ 'selected' if edit_group and edit_group.qualification_id == q.qualification_id }}>
-                {{ q.qualification_name }} ({{ q.qualification_reduction }})
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Курс *</label>
-          <select name="course_id" required>
-            <option value="">Выберите...</option>
-            {% for c in courses %}
-              <option value="{{ c.course_id }}" {{ 'selected' if edit_group and edit_group.course_id == c.course_id }}>
-                {{ c.course_name }} курс
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Год набора *</label>
-          <input type="number" name="creation_year" min="2000" max="2100" required value="{{ edit_group.creation_year if edit_group else '' }}">
-        </div>
-        <div class="form-group full">
-          <label>Куратор</label>
-          <select name="curator_id">
-            <option value="">Не назначен</option>
-            {% for cur in curators %}
-              <option value="{{ cur.person_id }}" {{ 'selected' if edit_group and edit_group.curator_id == cur.person_id }}>
-                {{ cur.person.surname }} {{ cur.person.name }} {{ cur.person.patronymic or '' }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-
       <div class="modal-footer">
         <a href="{{ url_for('groups.manage_groups') }}" class="btn btn-cancel">Отмена</a>
         <button type="submit" class="btn btn-save">{{ 'Сохранить' if edit_group else 'Создать' }}</button>

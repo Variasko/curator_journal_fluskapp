@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">{{ title }}</h2>
+    </div>
+
+    <div style="padding: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Выберите группу для генерации отчёта:</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            {% for group in groups %}
+            <div class="card" style="padding: 1.2rem; border: 1px solid var(--border);">
+                <h4 style="margin-bottom: 0.8rem; color: var(--primary);">{{ group.name }}</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{{ url_for('reports.social_passport', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center;">
+                        📋 Социальный паспорт группы
+                    </a>
+                    <a href="{{ url_for('reports.dormitory', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center;">
+                        🏠 Список студентов в общежитии
+                    </a>
+                    <a href="{{ url_for('reports.activists', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center;">
+                        ⭐ Активисты группы
+                    </a>
+                    <a href="{{ url_for('reports.extracurricular', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center;">
+                        🎨 Внеучебная занятость
+                    </a>
+                    <a href="{{ url_for('reports.class_hours_attendance', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center;">
+                        📅 Посещаемость классных часов
+                    </a>
+                    <a href="{{ url_for('reports.observation_sheet', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center;">
+                        📝 Лист наблюдений
+                    </a>
+                    <a href="{{ url_for('reports.parent_meetings_report', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center;">
+                        📄 Протоколы родительских собраний
+                    </a>
+                    <a href="{{ url_for('reports.individual_work', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center;">
+                        🤝 Индивидуальная работа
+                    </a>
+                    <a href="{{ url_for('reports.general_report', group_id=group.group_id) }}"
+                       class="btn btn-add" style="justify-content: center; background: var(--primary); color: white; margin-bottom: 0.5rem;">
+                        📥 Скачать общий отчёт (все листы)
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <p style="color: var(--muted); text-align: center; padding: 2rem;">
+                У вас нет групп для генерации отчётов
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

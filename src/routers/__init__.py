@@ -40,6 +40,8 @@ from .individual_work import indiv_bp
 
 from .class_hours import class_hours_bp
 
+from .reports import reports_bp
+
 __all__ = [
     "profile_bp",
     "curators_bp",
@@ -62,4 +64,5 @@ __all__ = [
     "parent_meetings_bp",
     "indiv_bp",
     "class_hours_bp",
+    "reports_bp",
 ]
