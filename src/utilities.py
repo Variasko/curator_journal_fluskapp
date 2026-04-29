@@ -38,11 +38,11 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
 
-        if session.get("person_role") != 1:
+        if session.get("person_role") != 1 and session.get("person_role") != 3:
 
             flash("Для доступа к странице необходимо быть администратором", "warning")
 
-            return redirect(url_for("index", next=request.url))
+            return redirect(url_for("profile.index", next=request.url))
 
         return f(*args, **kwargs)
 

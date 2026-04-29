@@ -1,368 +1,151 @@
 import csv
-
 import io
-
+import re
+from datetime import date
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
-
 from database.models import (
-    Person,
-    Curator,
-    Role,
-    Student,
-    StudentInGroup,
-    Group,
-    Parent,
-    SocialStatus,
-    HobbyType,
-    PostInGroupType,
-    Specialization,
-    Qualification,
-    Course,
+    Person, Curator, Role, Group, Student, Parent,
+    HobbyType, PostInGroupType, SocialStatus, StudentInGroup
 )
+from utils.formatters import format_group_name
 
+PHONE_REGEX = re.compile(r"^[0-9\s\-\(\)\+]+$")
 
-def detect_table_type(headers):
-    """Определяет тип таблицы по заголовкам CSV"""
-
-    headers_lower = [h.lower().strip() for h in headers]
-
-    if "login" in headers_lower and "password" in headers_lower:
-
-        return "curators"
-
-    elif "role_name" in headers_lower:
-
-        return "roles"
-
-    elif "hobby_type_name" in headers_lower:
-
-        return "hobbies"
-
-    elif "post_in_group_type_name" in headers_lower:
-
-        return "posts"
-
-    elif "status_name" in headers_lower:
-
-        return "statuses"
-
-    elif (
-        "specialization_name" in headers_lower and "qualification_name" in headers_lower
-    ):
-
-        return "groups"
-
-    elif (
-        "surname" in headers_lower
-        and "phone" in headers_lower
-        and "login" not in headers_lower
-    ):
-
-        return "parents"
-
-    elif "surname" in headers_lower and (
-        "group_id" in headers_lower or "group_name" in headers_lower
-    ):
-
-        return "students"
-
-    else:
-
-        return None
-
-
-def parse_csv(file_stream):
-    """
-    Читает поток файла CSV и возвращает список словарей.
-    Поддерживает utf-8-sig (Excel) и обычный utf-8.
-    """
-
+def parse_csv(file_stream) -> list[dict]:
     file_stream.seek(0)
+    raw = file_stream.read()
+    text = None
+    for encoding in ('utf-8-sig', 'utf-8', 'cp1251', 'latin-1'):
+        try:
+            text = raw.decode(encoding)
+            break
+        except (UnicodeDecodeError, LookupError):
+            continue
+    if text is None:
+        raise ValueError("Не удалось прочитать файл. Сохраните CSV в UTF-8 или Windows-1251.")
 
-    try:
+    reader = csv.DictReader(io.StringIO(text))
+    return [
+        {k.strip(): v.strip() if v else "" for k, v in row.items()}
+        for row in reader if any(row.values())
+    ]
 
-        stream = io.TextIOWrapper(file_stream, encoding="utf-8-sig", newline="")
+def detect_table_type(headers: list[str]) -> str | None:
+    h = {x.lower() for x in headers}
+    if {"surname", "name", "login", "password", "role_name"}.issubset(h): return "curators"
+    if {"surname", "name"}.issubset(h) and "login" not in h and ("group_id" in h or "group_name" in h): return "students"
+    if {"role_name"}.issubset(h): return "roles"
+    if {"surname", "name"}.issubset(h) and "login" not in h: return "parents"
+    if {"hobby_type_name"}.issubset(h): return "hobbies"
+    if {"post_in_group_type_name"}.issubset(h): return "posts"
+    if {"status_name"}.issubset(h): return "statuses"
+    return None
 
-        reader = csv.DictReader(stream)
+def _resolve_group(db: Session, identifier: str) -> Group | None:
+    """Находит группу по ID или по отформатированному имени (ИСП-121п)."""
+    identifier = identifier.strip()
+    if identifier.isdigit():
+        return db.query(Group).filter_by(group_id=int(identifier)).first()
+    
+    target_name = identifier.lower()
+    for g in db.query(Group).all():
+        if format_group_name(g).lower() == target_name:
+            return g
+    return None
 
-        data = list(reader)
-
-        stream.detach()
-
-        return data
-
-    except UnicodeDecodeError:
-
-        file_stream.seek(0)
-
-        stream = io.TextIOWrapper(file_stream, encoding="utf-8", newline="")
-
-        reader = csv.DictReader(stream)
-
-        data = list(reader)
-
-        stream.detach()
-
-        return data
-
-
-def import_data(db, table_type, data):
-    """Маршрутизатор импорта данных по типу таблицы"""
-
+def import_data(db: Session, table_type: str, data: list[dict]) -> dict:
+    errors = []
     success_count = 0
 
-    errors = []
+    for row_idx, row in enumerate(data, start=2):
+        row_errors = []
+        _validate_row(row, table_type, row_idx, db, row_errors)
 
-    redirect_url = "/admin/import"
+        if row_errors:
+            errors.extend(row_errors)
+            continue
+
+        try:
+            _insert_row(db, table_type, row)
+            success_count += 1
+        except Exception as e:
+            errors.append({"row": row_idx, "field": "БД", "value": "", "message": f"Ошибка сохранения: {e}"})
 
     try:
-
-        if table_type == "curators":
-
-            redirect_url = "/admin/curators"
-
-            for idx, row in enumerate(data, start=2):
-
-                try:
-
-                    surname = row.get("surname", "").strip()
-
-                    name = row.get("name", "").strip()
-
-                    patronymic = row.get("patronymic", "").strip() or None
-
-                    phone = row.get("phone", "").strip() or None
-
-                    if not surname or not name:
-
-                        errors.append(f"Строка {idx}: пустые ФИО")
-
-                        continue
-
-                    person = (
-                        db.query(Person)
-                        .filter(
-                            Person.surname == surname,
-                            Person.name == name,
-                            (Person.phone == phone) | (phone is None),
-                        )
-                        .first()
-                    )
-
-                    if not person:
-
-                        person = Person(
-                            surname=surname,
-                            name=name,
-                            patronymic=patronymic,
-                            phone=phone,
-                        )
-
-                        db.add(person)
-
-                        db.flush()
-
-                    role = None
-
-                    role_input = str(row.get("role_name", "")).strip()
-
-                    if role_input and not role_input.isdigit():
-
-                        role = db.query(Role).filter_by(role_name=role_input).first()
-
-                    if not role and role_input.isdigit():
-
-                        role = db.query(Role).get(int(role_input))
-
-                    if not role:
-
-                        role = db.query(Role).first()
-
-                        if not role:
-
-                            errors.append(f"Строка {idx}: нет ролей в системе")
-
-                            continue
-
-                    login = row.get("login", "").strip()
-
-                    password = row.get("password", "").strip()
-
-                    if not login or not password:
-
-                        errors.append(f"Строка {idx}: пустой логин или пароль")
-
-                        continue
-
-                    existing = (
-                        db.query(Curator).filter_by(person_id=person.person_id).first()
-                    )
-
-                    if not existing:
-
-                        db.add(
-                            Curator(
-                                person_id=person.person_id,
-                                login=login,
-                                password_hash=generate_password_hash(password),
-                                role_id=role.role_id,
-                            )
-                        )
-
-                    success_count += 1
-
-                except KeyError as e:
-
-                    errors.append(f"Строка {idx}: отсутствует поле {e}")
-
-                except Exception as e:
-
-                    errors.append(f"Строка {idx}: {str(e)}")
-
-                    db.rollback()
-
-        elif table_type == "roles":
-
-            redirect_url = "/admin/roles"
-
-            for idx, row in enumerate(data, start=2):
-
-                name = row.get("role_name", "").strip()
-
-                desc = row.get("description", "").strip() or None
-
-                if name and not db.query(Role).filter_by(role_name=name).first():
-
-                    db.add(Role(role_name=name, role_description=desc))
-
-                    success_count += 1
-
-        elif table_type == "parents":
-
-            redirect_url = "/admin/parents"
-
-            for idx, row in enumerate(data, start=2):
-
-                surname = row.get("surname", "").strip()
-
-                name = row.get("name", "").strip()
-
-                if surname and name:
-
-                    existing = (
-                        db.query(Parent)
-                        .filter_by(
-                            surname=surname,
-                            name=name,
-                            phone=row.get("phone", "").strip() or None,
-                        )
-                        .first()
-                    )
-
-                    if not existing:
-
-                        db.add(
-                            Parent(
-                                surname=surname,
-                                name=name,
-                                patronymic=row.get("patronymic", "").strip() or None,
-                                phone=row.get("phone", "").strip() or None,
-                            )
-                        )
-
-                        success_count += 1
-
-        elif table_type == "students":
-
-            redirect_url = "/admin/students"
-
-            for idx, row in enumerate(data, start=2):
-
-                try:
-
-                    surname = row.get("surname", "").strip()
-
-                    name = row.get("name", "").strip()
-
-                    if not surname or not name:
-
-                        continue
-
-                    person = (
-                        db.query(Person).filter_by(surname=surname, name=name).first()
-                    )
-
-                    if not person:
-
-                        person = Person(
-                            surname=surname,
-                            name=name,
-                            patronymic=row.get("patronymic", "").strip() or None,
-                            phone=row.get("phone", "").strip() or None,
-                        )
-
-                        db.add(person)
-
-                        db.flush()
-
-                    if (
-                        not db.query(Student)
-                        .filter_by(person_id=person.person_id)
-                        .first()
-                    ):
-
-                        db.add(Student(person_id=person.person_id))
-
-                    group_id = row.get("group_id", "").strip()
-
-                    if group_id and group_id.isdigit():
-
-                        if (
-                            not db.query(StudentInGroup)
-                            .filter_by(student_id=person.person_id)
-                            .first()
-                        ):
-
-                            db.add(
-                                StudentInGroup(
-                                    student_id=person.person_id, group_id=int(group_id)
-                                )
-                            )
-
-                    success_count += 1
-
-                except Exception as e:
-
-                    errors.append(f"Студент {idx}: {str(e)}")
-
-        elif table_type in ("hobbies", "posts", "statuses"):
-
-            model_map = {
-                "hobbies": (HobbyType, "hobby_type_name", "/admin/hobbies"),
-                "posts": (PostInGroupType, "post_in_group_type_name", "/admin/posts"),
-                "statuses": (SocialStatus, "status_name", "/admin/social-statuses"),
-            }
-
-            Model, name_field, url = model_map[table_type]
-
-            redirect_url = url
-
-            for idx, row in enumerate(data, start=2):
-
-                name = row.get(name_field, "").strip()
-
-                if name and not db.query(Model).filter_by(**{name_field: name}).first():
-
-                    db.add(Model(**{name_field: name}))
-
-                    success_count += 1
-
         db.commit()
-
     except Exception as e:
-
         db.rollback()
+        errors.append({"row": "-", "field": "Транзакция", "value": "", "message": f"Откат из-за: {e}"})
 
-        errors.append(f"Критическая ошибка: {str(e)}")
+    return {"success_count": success_count, "errors": errors}
 
-    return success_count, errors, redirect_url
+def _validate_row(row: dict, table_type: str, row_idx: int, db: Session, errors: list):
+    def add_err(field, msg):
+        errors.append({"row": row_idx, "field": field, "value": row.get(field, ""), "message": msg})
+
+    if table_type == "curators":
+        for f in ["surname", "name", "login", "password", "role_name"]:
+            if not row.get(f): add_err(f, "Обязательное поле")
+        if row.get("phone") and not PHONE_REGEX.match(row["phone"]): add_err("phone", "Неверный формат")
+        if db.query(Curator).filter_by(login=row.get("login", "").strip()).first():
+            add_err("login", "Логин уже занят")
+        if row.get("role_name") and not _get_role_id(db, row["role_name"]):
+            add_err("role_name", "Роль не найдена")
+
+    elif table_type == "students":
+        for f in ["surname", "name"]:
+            if not row.get(f): add_err(f, "Обязательное поле")
+        
+        group_val = row.get("group_id") or row.get("group_name")
+        if not group_val:
+            add_err("group_name", "Обязательное поле (укажите ID или имя группы)")
+        elif not _resolve_group(db, group_val):
+            add_err("group_name", f"Группа '{group_val}' не найдена в системе")
+
+    elif table_type == "roles":
+        if not row.get("role_name"): add_err("role_name", "Обязательное поле")
+        elif db.query(Role).filter_by(role_name=row["role_name"].strip()).first(): add_err("role_name", "Уже существует")
+
+    elif table_type == "parents":
+        for f in ["surname", "name"]:
+            if not row.get(f): add_err(f, "Обязательное поле")
+
+    elif table_type in ["hobbies", "posts", "statuses"]:
+        field_map = {"hobbies": "hobby_type_name", "posts": "post_in_group_type_name", "statuses": "status_name"}
+        f_name = field_map[table_type]
+        if not row.get(f_name): add_err(f_name, "Обязательное поле")
+
+def _get_role_id(db, val):
+    val = str(val).strip()
+    if val.isdigit():
+        return db.query(Role).filter_by(role_id=int(val)).first()
+    return db.query(Role).filter_by(role_name=val).first()
+
+def _insert_row(db, table_type, row):
+    if table_type in ["curators", "students"]:
+        p = Person(surname=row["surname"], name=row["name"], patronymic=row.get("patronymic"), phone=row.get("phone"))
+        db.add(p); db.flush()
+        if table_type == "curators":
+            role = _get_role_id(db, row["role_name"])
+            db.add(Curator(person_id=p.person_id, login=row["login"].strip(), 
+                           password_hash=generate_password_hash(row["password"]), role_id=role.role_id))
+        else:
+            db.add(Student(person_id=p.person_id, is_expelled=False))
+            db.flush()
+            group_val = row.get("group_id") or row.get("group_name")
+            group = _resolve_group(db, group_val)
+            if group:
+                db.add(StudentInGroup(student_id=p.person_id, group_id=group.group_id, creation_date=date.today()))
+                
+    elif table_type == "parents":
+        db.add(Parent(surname=row["surname"], name=row["name"], patronymic=row.get("patronymic"), phone=row.get("phone")))
+    elif table_type == "roles":
+        db.add(Role(role_name=row["role_name"], role_description=row.get("description")))
+    elif table_type == "hobbies":
+        db.add(HobbyType(hobby_type_name=row["hobby_type_name"]))
+    elif table_type == "posts":
+        db.add(PostInGroupType(post_in_group_type_name=row["post_in_group_type_name"]))
+    elif table_type == "statuses":
+        db.add(SocialStatus(status_name=row["status_name"]))

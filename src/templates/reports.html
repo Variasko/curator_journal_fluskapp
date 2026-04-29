@@ -12,7 +12,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
             {% for group in groups %}
             <div class="card" style="padding: 1.2rem; border: 1px solid var(--border);">
-                <h4 style="margin-bottom: 0.8rem; color: var(--primary);">{{ group.name }}</h4>
+                <h4 style="margin-bottom: 0.8rem; color: var(--primary);">{{ group.display_name }}</h4>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                     <a href="{{ url_for('reports.social_passport', group_id=group.group_id) }}"
                        class="btn btn-add" style="justify-content: center;">

@@ -40,12 +40,18 @@ def curator_required(f):
 
         db: Session = SessionLocal()
         try:
-            group = db.query(Group).filter_by(group_id=group_id).first()
+            if session.get("person_role") != 3:
+                group = db.query(Group).filter_by(group_id=group_id).first()
+            else:
+                group = db.query(Group).first()
+
             if not group:
                 flash("Группа не найдена", "error")
                 return redirect(url_for("reports.index"))
-            if group.curator_id != session["person_id"]:
+
+            if group.curator_id != session["person_id"] and session["person_role"] != 3:
                 flash("Недостаточно прав для этой группы", "error")
+                print("Недостаточно прав для этой группы")
                 return redirect(url_for("reports.index"))
             
             return f(group_id, db, *args, **kwargs)
@@ -77,9 +83,18 @@ def index():
     db: Session = SessionLocal()
     try:
         groups = db.query(Group).filter_by(curator_id=session["person_id"]).all()
-        groups_data = [
-            {"group_id": g.group_id, "name": format_group_name(g)} for g in groups
-        ]
+        
+        if session.get("person_role") != 3:
+            groups_data = [
+                {"group_id": g.group_id, "display_name": format_group_name(g)}
+                for g in groups
+            ]
+        else:
+                groups_data = [
+                {"group_id": g.group_id, "display_name": format_group_name(g)}
+                for g in db.query(Group).all()
+            ]
+
         return render_template("reports.html", title="Отчёты", groups=groups_data)
     finally:
         db.close()

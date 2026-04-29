@@ -30,10 +30,16 @@ def index():
 
         curator_groups = db.query(Group).filter_by(curator_id=curator_id).all()
 
-        groups_data = [
-            {"group_id": g.group_id, "display_name": format_group_name(g)}
-            for g in curator_groups
-        ]
+        if session.get("person_role") != 3:
+            groups_data = [
+                {"group_id": g.group_id, "display_name": format_group_name(g)}
+                for g in curator_groups
+            ]
+        else:
+                groups_data = [
+                {"group_id": g.group_id, "display_name": format_group_name(g)}
+                for g in db.query(Group).all()
+            ]
 
         selected_group_id = request.args.get("group_id") or request.form.get("group_id")
 
