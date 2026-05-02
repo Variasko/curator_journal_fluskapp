@@ -34,16 +34,13 @@ def login_required(f):
 
 
 def admin_required(f):
-
     @wraps(f)
     def decorated_function(*args, **kwargs):
-
-        if session.get("person_role") != 1 and session.get("person_role") != 3:
-
-            flash("Для доступа к странице необходимо быть администратором", "warning")
-
+        allowed_roles = {1, 3}
+        
+        if session.get("person_role") not in allowed_roles:
+            flash("Для доступа к странице необходимо быть администратором или супервайзером", "warning")
             return redirect(url_for("profile.index", next=request.url))
-
+            
         return f(*args, **kwargs)
-
     return decorated_function
