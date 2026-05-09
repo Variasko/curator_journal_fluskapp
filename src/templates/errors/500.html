@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="error-container" style="text-align: center; padding: 3rem;">
+    <h1 style="font-size: 6rem; color: #e74c3c; margin: 0;">500</h1>
+    <h2 style="margin: 1rem 0;">Ошибка сервера</h2>
+    <p style="color: var(--muted); margin-bottom: 2rem;">
+        Произошла внутренняя ошибка сервера. Пожалуйста, попробуйте позже.
+    </p>
+    <a href="/" class="btn btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--primary); color: white; text-decoration: none; border-radius: 8px;">
+        Вернуться на главную
+    </a>
+</div>
+{% endblock %}
